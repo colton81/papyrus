@@ -9,7 +9,7 @@ enum APIAttribute {
     case keyMapping(value: String)
     case headers(value: String)
     case authorization(value: String)
-
+    case response(expectedResponseType: String, key:String?)
     /// Function attributes
     case http(method: String, path: String)
 
@@ -43,6 +43,11 @@ enum APIAttribute {
             }
 
             self = .http(method: name, path: firstArgument)
+        case "RESPONSE":
+                guard let firstArgument else {
+                    return nil
+                }
+                self = .response(expectedResponseType: firstArgument, key: secondArgument)
         case "HTTP":
             guard let firstArgument, let secondArgument else {
                 return nil
@@ -173,6 +178,8 @@ enum APIAttribute {
             req.addAuthorization(\(value))
             """
         case .http:
+            return nil
+        case .response(expectedResponseType: let expectedResponseType):
             return nil
         }
     }

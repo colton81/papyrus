@@ -10,6 +10,7 @@ extension FunctionDeclSyntax {
 
         case tuple([TupleParameter])
         case type(String)
+        case typeResponse(String)
     }
 
     enum AsyncStyle {
@@ -98,15 +99,33 @@ extension FunctionDeclSyntax {
 
         return returnType
     }
+    
+    var ResponseTypes:(object: String?, key: String?){
+        var responseObject: String?
+        var keyObject: String?
+        for attribute in apiAttributes{
+            switch attribute{
+                case let .response(expectedResponseType, key):
+                    responseObject = expectedResponseType
+                    keyObject = key
+                default:
+                    continue
+            }
+        }
+        return (responseObject,keyObject)
+    }
 
     private var returnType: ReturnType? {
         guard let type = signature.returnClause?.type else {
             return nil
         }
-
+        var responseObject = ResponseTypes.object
         if let type = type.as(TupleTypeSyntax.self) {
             return .tuple(type.elements.map { .init(label: $0.firstName?.text, type: $0.type.trimmedDescription) })
         } else {
+            if let responseObject{
+                return .typeResponse(responseObject)
+            }
             return .type(type.trimmedDescription)
         }
     }

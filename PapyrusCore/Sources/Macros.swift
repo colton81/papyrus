@@ -1,9 +1,15 @@
 import Foundation
 
 // MARK: Protocol attributes
+public protocol Endpoints{
+    func path() -> String
+}
+
 
 @attached(peer, names: suffixed(API))
 public macro API(_ typeName: String? = nil) = #externalMacro(module: "PapyrusPlugin", type: "APIMacro")
+@attached(peer, names: suffixed(API))
+public macro API<Type>(_ typeName: String? = nil, protocol: Type.Type?) = #externalMacro(module: "PapyrusPlugin", type: "APIMacro")
 
 @attached(peer, names: suffixed(Mock))
 public macro Mock(_ typeName: String? = nil) = #externalMacro(module: "PapyrusPlugin", type: "MockMacro")
@@ -43,6 +49,9 @@ public macro DELETE(_ path: String) = #externalMacro(module: "PapyrusPlugin", ty
 public macro GET(_ path: String) = #externalMacro(module: "PapyrusPlugin", type: "DecoratorMacro")
 
 @attached(peer)
+public macro GET(protocol: Endpoints.Type) = #externalMacro(module: "PapyrusPlugin", type: "DecoratorMacro")
+
+@attached(peer)
 public macro PATCH(_ path: String) = #externalMacro(module: "PapyrusPlugin", type: "DecoratorMacro")
 
 @attached(peer)
@@ -62,7 +71,8 @@ public macro TRACE(_ path: String) = #externalMacro(module: "PapyrusPlugin", typ
 
 @attached(peer)
 public macro CONNECT(_ path: String) = #externalMacro(module: "PapyrusPlugin", type: "DecoratorMacro")
-
+@attached(peer)
+public macro RESPONSE(_ responseObject: Any.Type, key: String) = #externalMacro(module: "PapyrusPlugin", type: "DecoratorMacro")
 // MARK: Parameter attributes
 
 /*

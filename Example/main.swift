@@ -2,25 +2,30 @@ import Papyrus
 
 // MARK: 0. Define your API.
 
-@API
-@Mock
+public struct SampleResponse<T:Codable>: Codable{
+    let data: T
+    let status:Bool
+}
+
+
+//@Mock
+@API()
 @KeyMapping(.snakeCase)
 @Authorization(.bearer("<my-auth-token>"))
+@Headers(["X-Client-Version": "1.2.3"])
 protocol Sample {
     @GET("/todos")
+    @RESPONSE(SampleResponse<Todo>, key: "data.combos.records")
     func getTodos() async throws -> [Todo]
+    @GET("/todo")
+    func getTodo() async throws -> [Todo]
 
-    @POST("/todos")
-    func createTodo(name: String) async throws -> Todo
-
-    @URLForm
-    @POST("/todos/:id/tags")
-    func createTag(id: Int) async throws
-
-    @Multipart
-    @POST("/todo/:id/attachment")
-    func upload(id: Int, part1: Part, part2: Part) async throws
 }
+
+
+
+
+
 
 public struct Todo: Codable {
     let id: Int

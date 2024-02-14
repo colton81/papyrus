@@ -139,6 +139,33 @@ extension FunctionDeclSyntax {
                     try res.validate()
                     return \(resultExpression)
                     """
+                case .typeResponse:
+                    var key = ResponseTypes.key
+                    var keys = key?.split(separator: ".")
+                    if let key{
+                        guard let resultExpression else {
+                            throw PapyrusPluginError("Missing result expression!")
+                        }
+                        return """
+                    let res = try await provider.request(req)
+                    try res.validate()
+                    let response = \(resultExpression)
+                    if let data = response.\(key.withoutQuotes){
+                        return data
+                    }
+                    """
+                    } else {
+                        guard let resultExpression else {
+                            throw PapyrusPluginError("Missing result expression!")
+                        }
+                        return """
+                    let res = try await provider.request(req)
+                    try res.validate()
+                    let response = \(resultExpression)
+                    return response
+                    """
+                    }
+                   
             }
         }
     }
@@ -208,12 +235,14 @@ extension FunctionDeclSyntax {
                 """
         case .type(let string):
             return "try res.decode(\(string).self, using: req.responseDecoder)"
+            case .typeResponse(let string):
+                return "try res.decode(\(string).self, using: req.responseDecoder)"
         default:
             return nil
         }
     }
 
-    private var apiAttributes: [APIAttribute] {
+    var apiAttributes: [APIAttribute] {
         attributes
             .compactMap { $0.as(AttributeSyntax.self) }
             .compactMap(APIAttribute.init)
